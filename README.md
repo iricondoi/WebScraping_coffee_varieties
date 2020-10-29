@@ -11,7 +11,7 @@ La actividad ha sido realizada por **Ivan García Jiménez** e **Itziar Ricondo 
 
 ## Ficheros del código fuente
 
-* **webscraping_coffee_varieties.py**: Descripción
+* **webscraping_coffee_varieties.py**: Archivo python con diversas funciones para hacer web scraping de la página _https://varieties.worldcoffeeresearch.org/varieties/_ para obtener un csv con las características de diferentes variedades de café.
 
 ## Recursos
 
