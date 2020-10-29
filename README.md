@@ -1,4 +1,4 @@
-# Práctica 1: Web scraping coffee_varieties
+# Práctica 1: WebScraping_coffee_varieties
 
 ## Descripción
 
