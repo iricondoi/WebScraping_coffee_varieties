@@ -25,12 +25,18 @@ def propietario(URL):
     print('Country: {}'.format(owner['country']))
 
 
-# Escrapea la imagen dada su URL por parámetro
+# Escrapea la imagen dada su URL por parámetro y la guarda en una carpeta
+# imagenes en el directorio donde se encuetra este programa
 def scrap_image(source_url):
     r = requests.get(source_url, stream = True)
     if r.status_code == 200:
+        ruta_actual = os.getcwd().replace("\\", "/")
+        ruta_imagenes = ruta_actual + '/imagenes'
+        # Si no existe el directorio imagenes lo creamos
+        if not os.path.exists(ruta_imagenes):
+            os.mkdir(ruta_imagenes)
         aSplit = source_url.split('/')
-        ruta = "C:/Users/96gar/Desktop/imagenes/"+aSplit[len(aSplit)-1]
+        ruta = ruta_imagenes + "/"+aSplit[len(aSplit)-1]
         output = open(ruta,"wb")
         for chunk in r:
             output.write(chunk)
@@ -130,7 +136,7 @@ root_URL = 'https://worldcoffeeresearch.org/'
 #propietario(root_URL)
 
 # Crear una lista con todos los cafes scrapeados
-print('Begining scraping, wait 77 seconds')
+print('Begining scraping, wait between 77-110 seconds')
 t0 = time.time()
 coffees = scrap_all_coffees(main_URL)
 
