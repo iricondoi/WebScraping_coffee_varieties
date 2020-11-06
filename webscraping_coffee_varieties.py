@@ -27,8 +27,14 @@ def propietario(URL):
 
 # Escrapea la imagen dada su URL por parámetro y la guarda en una carpeta
 # imagenes en el directorio donde se encuetra este programa
-def scrap_image(source_url):
-    r = requests.get(source_url, stream = True)
+def scrap_image(source_url, headers):
+    # Hacemos la request y añadimos un retraso exponencial
+    # para evitar satura el servidor de peticiones
+    t1 = time.time()
+    r = requests.get(source_url, stream = True, headers=headers)
+    response_delay = time.time() - t1
+    time.sleep(5 * response_delay)
+    # Si la request es correcta se scrapea la imagen
     if r.status_code == 200:
         ruta_actual = os.getcwd().replace("\\", "/")
         ruta_imagenes = ruta_actual + '/imagenes'
@@ -36,17 +42,23 @@ def scrap_image(source_url):
         if not os.path.exists(ruta_imagenes):
             os.mkdir(ruta_imagenes)
         aSplit = source_url.split('/')
-        ruta = ruta_imagenes + "/"+aSplit[len(aSplit)-1]
+        ruta = ruta_imagenes + "/" + aSplit[len(aSplit)-1]
         output = open(ruta,"wb")
         for chunk in r:
             output.write(chunk)
         output.close()
+        
     return(ruta)
 
 
 # Scrapea una variedad de café dada su URL
-def scrap_coffe_variety(variety_URL):
-    variety_page = requests.get(variety_URL)
+def scrap_coffe_variety(variety_URL, headers):
+    # Hacemos la request y añadimos un retraso exponencial
+    # para evitar satura el servidor de peticiones
+    t1 = time.time()
+    variety_page = requests.get(variety_URL, headers= headers)
+    response_delay = time.time() - t1
+    time.sleep(5 * response_delay)
     # Si la request es correcta se scrapea la web
     if variety_page.status_code == 200:
         variety_soup = BeautifulSoup(variety_page.content, "lxml")
@@ -102,7 +114,22 @@ def scrap_all_coffees(main_URL):
     
     # Crear lista vacía de cafes
     coffees = list()
-    page = requests.get(main_URL)
+    
+    # Se define un header cambiando el User-Agent para no evidenciar que la 
+    # petición viene de un script
+    headers = {}
+    headers["Accept"] = "text/html,application/xhtml+xml,application/xml;\
+        q=0.9,image/webp,*/*;q=0.8"
+    headers["Accept-Encoding"]= "gzip, deflate, sdch, br"
+    headers["Accept-Language"]= "en-US,en;q=0.8"
+    headers["Cache-Control"]= "no-cache"
+    headers["dnt"]= "1"
+    headers["Pragma"]= "no-cache"
+    headers["Upgrade-Insecure-Requests"]= "1"
+    headers["User-Agent"]= "Mozilla/5.0 (Windows NT 10.0; Win64; x64; \
+        rv:82.0)Gecko/20100101 Firefox/82.0"
+    # Se realiza la petición
+    page = requests.get(main_URL, headers=headers)
     
     # Si la request es correcta se scrapea la web
     if page.status_code == 200:
@@ -113,12 +140,12 @@ def scrap_all_coffees(main_URL):
             # Si la URL corresponde a la de una variedad la scrapeamos con
             # la función scrap_coffe_variety y la añadimos a la lista coffees
             if ('varieties/' in aLink):
-                coffee = scrap_coffe_variety(aLink)
+                coffee = scrap_coffe_variety(aLink, headers)
                 # Se obtiene la URL de la imagen del café 
                 image_link = link.find('img').get('src')
                 # Mediante la función scrap_image se guarda la imagen
                 # y se obtiene su ruta para añadirla a la lista coffee
-                ruta = scrap_image(image_link)
+                ruta = scrap_image(image_link, headers)
                 coffee.append(ruta)
                 coffees.append(coffee)
     return(coffees)
@@ -136,7 +163,7 @@ root_URL = 'https://worldcoffeeresearch.org/'
 #propietario(root_URL)
 
 # Crear una lista con todos los cafes scrapeados
-print('Begining scraping, wait between 77-110 seconds')
+print('Begining scraping, wait 7 minutes')
 t0 = time.time()
 coffees = scrap_all_coffees(main_URL)
 
