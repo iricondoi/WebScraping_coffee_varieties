@@ -29,9 +29,13 @@ def propietario(URL):
 # imagenes en el directorio donde se encuetra este programa
 def scrap_image(source_url, headers):
     # Hacemos la request y añadimos un retraso exponencial
-    # para evitar satura el servidor de peticiones
+    # para evitar satura el servidor de peticiones.
+    # También se gestionan los timeouts por si la petición dura más de 10s
     t1 = time.time()
-    r = requests.get(source_url, stream = True, headers=headers)
+    try:
+        r = requests.get(source_url, stream = True, headers=headers, timeout=10)
+    except requests.exceptions.Timeout:
+        pass
     response_delay = time.time() - t1
     time.sleep(5 * response_delay)
     # Si la request es correcta se scrapea la imagen
@@ -47,7 +51,6 @@ def scrap_image(source_url, headers):
         for chunk in r:
             output.write(chunk)
         output.close()
-        
     return(ruta)
 
 
@@ -55,8 +58,13 @@ def scrap_image(source_url, headers):
 def scrap_coffe_variety(variety_URL, headers):
     # Hacemos la request y añadimos un retraso exponencial
     # para evitar satura el servidor de peticiones
+    # También se gestionan los timeouts por si la petición dura más de 10s
     t1 = time.time()
-    variety_page = requests.get(variety_URL, headers= headers)
+    try:
+        variety_page = requests.get(variety_URL, headers= headers, timeout=10)
+    except requests.exceptions.Timeout:
+        pass
+    
     response_delay = time.time() - t1
     time.sleep(5 * response_delay)
     # Si la request es correcta se scrapea la web
@@ -163,7 +171,7 @@ root_URL = 'https://worldcoffeeresearch.org/'
 #propietario(root_URL)
 
 # Crear una lista con todos los cafes scrapeados
-print('Begining scraping, wait 7 minutes')
+print('Begining scraping, wait between 7-8 minutes')
 t0 = time.time()
 coffees = scrap_all_coffees(main_URL)
 
